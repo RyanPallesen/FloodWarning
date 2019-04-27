@@ -16,17 +16,40 @@ namespace Flood_Warning
 
     public class Master : BaseUnityPlugin
     {
-        public static bool shouldRunFloodWarning;
-        public static bool shouldRunSizeChanger;
 
         public void Awake()//Code that runs when the game starts
         {
-            RunConfig();
+          
 
-            if (shouldRunFloodWarning)
+
+            if (BetterInteractables.RunBetterInteractables()) { Chat.AddMessage("[FW] Better Interactables Loaded"); }
+            if (InteractableManager.RunInteractableManager()) { Chat.AddMessage("[FW] Interactable Manager Loaded"); }
+            if (SizeManager.RunSizeManager()) { Chat.AddMessage("[FW] Size Manager Loaded"); }
+            if (CharacterEdits.RunCharacterEdits()) { Chat.AddMessage("[FW] Character Edits Loaded"); }
+            if (EnemyEdits.RunEnemyEdits()) { Chat.AddMessage("[FW] Enemy Edits Loaded"); }
+            if (AITeammates.RunAITeammates()) { Chat.AddMessage("[FW] Teammate editor loaded"); }
+
+            List<RuleDef> allRuleDefs = (List<RuleDef>)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RuleCatalog"), "allRuleDefs").GetValue(null);
+            List<RuleChoiceDef> allChoicesDefs = (List<RuleChoiceDef>)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RuleCatalog"), "allChoicesDefs").GetValue(null);
+
+            for (int k = 0; k < allRuleDefs.Count; k++)
             {
-                //if (shouldRunSizeChanger) { SizeChanger(); };
+                RuleDef ruleDef = allRuleDefs[k];
+                ruleDef.globalIndex = k;
+                for (int j = 0; j < ruleDef.choices.Count; j++)
+                {
+                    RuleChoiceDef ruleChoiceDef6 = ruleDef.choices[j];
+                    ruleChoiceDef6.localIndex = j;
+                    ruleChoiceDef6.globalIndex = allChoicesDefs.Count;
+                    allChoicesDefs.Add(ruleChoiceDef6);
+                }
             }
+
+            Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RuleCatalog"), "allRuleDefs").SetValue(null, allRuleDefs);
+            Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RuleCatalog"), "allChoicesDefs").SetValue(null, allChoicesDefs);
+            RuleCatalog.availability.MakeAvailable();
+
+
         }
 
         public void Update()
@@ -34,36 +57,6 @@ namespace Flood_Warning
 
         }
 
-        public void RunConfig()
-        {
-            shouldRunFloodWarning = Config.Wrap(
-                "Settings",
-                "myVariableMultiplier",
-                "Custom value for myVariable in myMod",
-                true).Value;
-
-            shouldRunSizeChanger = Config.Wrap(
-                "Settings",
-                "myVariableMultiplier",
-                "Custom value for myVariable in myMod",
-                false).Value;
-        }
-
-        public void SizeChanger()
-        {
-            IL.RoR2.CharacterMaster.SpawnBody += il =>
-            {
-                var cursor = new ILCursor(il).Goto(0);
-                cursor.GotoNext(MoveType.After, x => x.MatchCallvirt<GameObject>("GetComponent"));
-                cursor.EmitDelegate<Func<GameObject, GameObject>>((gameObject) =>
-                {
-                    gameObject.transform.localScale = Vector3.one * 0.1f;
-                    KinematicCharacterMotor component2 = gameObject.GetComponent<KinematicCharacterMotor>();
-                    CapsuleCollider capsule = component2.Capsule;
-                    component2.SetCapsuleDimensions(capsule.radius, capsule.height, 0.85f);
-                    return gameObject;
-                });
-            };
-        }
+        
     }
 }

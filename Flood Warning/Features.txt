@@ -1,0 +1,77 @@
+﻿###Features
+
+##InteractableManager
+
+Allows you to edit the chances of a given spawned interactable being of the desired type (Given that type would naturally spawn in this level)
+
+Allows you to forcibly spawn up to 128 of any given interactable (Now works on every level)
+
+##AllyEdits
+Allies can now spawn with: No items (vanilla), an exact copy of your items (with and without use items), a random item for each item of yours (based on tiers)
+##SizeManager
+
+Allows you to edit the size scale of Elites,Bosses,Teleporter Bosses, Monsters, Allies, Players and NPC characters (Stacks, an Elite Teleporter boss will scale up for  elite, teleporter and boss)
+
+##BetterInteractables
+
+Triple shops can now have any tier of item in them at random
+
+Triple shops now have varied costs (Percent health, trade up 1 item, trade up like a cauldron, 2x cost, 0.5x cost)
+
+Shrine of chance, Shrine of Order, Shrine of The Forest, can now be used a random amount of times (2-5 for chance, 5-12 for Forest, 1-4 for Order)
+
+Shrine of Chance and Shrine of Order can now be used faster
+
+Shrine of chance increases chance of better items for consecutive fails (10% increase for green per fail, 5% increase for red per fail)
+
+##CharacterEdits
+
+#Bandit
+
+Added bandit to the game
+
+#Commando
+
+x2 passive regeneration
+
+Huntress
+
+#Engi
+
+Base crit of 30%
+Mines recharge 50% faster
+Mines can now be use while sprinting
+Using mines will not cancel red whip
+Mines will now take longer to deploy
+Backup Mag will allow for 5 more active mines
+Afterburner will allow for 1 more active shield
+
+#MUL-T
+2x base acceleration
+
+#Artificer
+
+4x base acceleration
+1.3x base speed
+1.3x base jump height
+Starts with 50 shield
+Starts with 0.5x health
+0.75x health gained each level
+Starts with 0.8x damage
+begins with 1 additional jump
+
+can now sprint while using flamethrower
+
+replaced utility with a Blink with a 4 second cooldown
+replaced M1 with flamethrower
+replaced special with "Fire Blast"
+
+#Mercenary
+
+##EnemyEdits
+Bosses will no longer (almost) always be blazing when choosing an elite
+Chrine Of Combat enemies will no longer (almost) always be blazing when choosing an elite
+
+You can decide the cost multiplier for elites (Default 6)
+
+Enemies will continue spawning after 'ticket limit' is reached (editable in EnemiesWithItems)
