@@ -1,41 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using BepInEx;
+﻿using BepInEx;
 using RoR2;
 using UnityEngine;
-using UnityEngine.Networking;
+using System.Collections.Generic;
+using System;
+using BepInEx.Configuration;
+using System.Reflection;
+using MonoMod.Cil;
+using KinematicCharacterController;
+using Flood_Warning;
 
 namespace Flood_Warning
 {
-    class EnemyEdits : BaseUnityPlugin
+    [BepInDependency("com.bepis.r2api")]
+
+    [BepInPlugin("com.PallesenProductions.EnemyEdits", "EnemyEdits", "1.0.0")]
+
+    public class EnemyEdits : BaseUnityPlugin
     {
-        public static bool RunEnemyEdits()
+
+        public void Awake()//Code that runs when the game starts
         {
-            var addRule = typeof(RuleCatalog).GetMethod("AddRule", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(RuleDef) }, null);
-            var addCategory = typeof(RuleCatalog).GetMethod("AddCategory", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string), typeof(Color), typeof(string), typeof(Func<bool>) }, null);
-
-
-
-            addCategory.Invoke(null, new object[] { "Enemy Editor", new Color(94 / 255, 82 / 255, 30 / 255, byte.MaxValue), "", new Func<bool>(() => false) });
-
-            RuleDef eliteSpawnCost = new RuleDef("FloodWarning.EliteCost", "Guaranteed");
+           
+            R2API.ConfigController.addConfigCategory("Enemy Editor", new Color(0, 0, 0));
+            R2API.ConfigController.insertRule("FloodWarning", "EliteCost");
 
             for (float o = 0; o <= 10; o++)
             {
                 float myNum = o;
-                RuleChoiceDef myRule = eliteSpawnCost.AddChoice("0", myNum, false);
-                myRule.spritePath = "Textures/MiscIcons/texRuleBonusStartingMoney";
-                myRule.tooltipNameToken = "" + myNum + "x elite cost";
-                myRule.tooltipBodyToken = "If the game is able to spawn " + myNum + " Non-Elite enemies this tick, it will try to spawn 1 elite instead";
-                if (myNum == 5) { eliteSpawnCost.MakeNewestChoiceDefault(); }
-
+                R2API.ConfigController.insertRuleChoice<float>(myNum, "", "" + myNum + "x elite cost", "If the game is able to spawn " + myNum + " Non-Elite enemies this tick, it will try to spawn 1 elite instead", new Color(0, 0, 0), new Color(0, 0, 0));
             }
-            addRule.Invoke(null, new object[] { eliteSpawnCost });
+            R2API.ConfigController.pushRuleToGame();
 
-            //On.RoR2.CombatDirector.AttemptSpawnOnTarget += (orig, self, spawnTarget) =>
-            //{
+            On.RoR2.CombatDirector.AttemptSpawnOnTarget += (orig, self, spawnTarget) =>
+            {
+                self.skipSpawnIfTooCheap = false;
+                self.targetPlayers = false;
+                return orig(self, spawnTarget);
             //    if (orig(self, spawnTarget) == false && Run.instance.difficultyCoefficient > 15f)
             //    {
             //    GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(self.lastAttemptedMonsterCard.spawnCard.prefab, self.transform.position, self.transform.rotation);
@@ -51,11 +51,11 @@ namespace Flood_Warning
             //    }
             //    return true;
 
-            //};
+            };
 
             On.RoR2.CombatDirector.Awake += (orig, self) =>
             {
-                Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.CombatDirector"), "eliteMultiplierCost").SetValue(self, (float)(Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.EliteCost")).extraData));
+                Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.CombatDirector"), "eliteMultiplierCost").SetValue(self, R2API.ConfigController.GetVar<float>("FloodWarning","EliteCost"));
                 orig(self);
             };
 
@@ -70,8 +70,8 @@ namespace Flood_Warning
             //    Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.CombatDirector"), "currentActiveEliteIndex").SetValue(self, (EliteIndex)Run.instance.spawnRng.RangeInt(0, (int)EliteIndex.Count));
             //    orig(self,card);
             //};
-            return true;
         }
 
     }
+    
 }

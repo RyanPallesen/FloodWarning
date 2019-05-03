@@ -1,6 +1,39 @@
-﻿###Features
+﻿###FAQ
+
+Note; I do this FOR FUN. I am not obligated to do things for you, I am not being payed for this. If you do not respect that then I can and WILL stop uploading updates.
+Note; Yes, I can also soft-ban you from playing the mod if I really want to, don't be an ass, thanks.
+
+#General
+
+What happened to your old mods? : I deleted them.
+Why did you delete them? : They were rushed, unfinished messes.
+
+Where's the config file? : There isn't one.
+Why isn't there a config? : I don't like it, I prefer having the config in-game, thus letting you change settings between runs and not requiring restarts, also helps with immersion.
+
+Add my feature! : If it's something I like and feel like I would implement on my own at some point; sure!
+Add my feature! : If it's somethign I don't like and don't think I'd ever naturally implement, It will not happen unless I'm paid/rewarded in some way. (Basically I'm doing this for fun, so if I don't want to I won't unless I have to)
+
+Fix this bug! : If you're a smart cookie, you can take a crack at fixing it yourself by pulling the github, then pushing back for me to add in (I'll add a comment saying who did what)
+Fix this bug! : Submit an issue through github [DO NOT MESSAGE ME ON DISCORD ABOUT BUGS], and I'll look into it and reply on github.
+
+
+#Development
+
+Can I use your code? : See below
+Case 1: You're copying my code to make a segment of flood warning a standalone mod ; Please don't do this.
+Case 2: You're using a substantial portion of my code in your mod ; Please ask and credit me (Through a comment or whatever) before release
+Case 3: You're using a hook/single function/three lines of code ; Go for it, let me know how it goes.
+Case 4: You're copy pasting the entire mod and re-uploading it with some changed numbers ; Fuck off.
+
+How did you do X/Y/Z? : Look at the source code, if you think you can do it better, submit a pull request, change it and upload it (Credit will be given).
+
+
+###Features
 
 ##InteractableManager
+
+Allow you to edit the total amount of interactables that will spawn
 
 Allows you to edit the chances of a given spawned interactable being of the desired type (Given that type would naturally spawn in this level)
 
@@ -66,6 +99,9 @@ replaced utility with a Blink with a 4 second cooldown
 replaced M1 with flamethrower
 replaced special with "Fire Blast"
 
+spawns with flaming elite equip
+
+
 #Mercenary
 
 ##EnemyEdits
@@ -75,3 +111,18 @@ Chrine Of Combat enemies will no longer (almost) always be blazing when choosing
 You can decide the cost multiplier for elites (Default 6)
 
 Enemies will continue spawning after 'ticket limit' is reached (editable in EnemiesWithItems)
+
+##Rule Edits
+
+Unhides existing rules/artifacts
+
+Unhides Item White/Blacklist
+
+Unhides Equipment White/Blacklist
+
+Unhides artifacts
+
+Categories now start collapsed
+
+Rules are now kept between runs (not restarts)
+

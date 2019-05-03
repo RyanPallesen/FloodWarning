@@ -1,18 +1,23 @@
 ﻿using BepInEx;
-using KinematicCharacterController;
 using RoR2;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 using UnityEngine;
+using System.Collections.Generic;
+using System;
+using BepInEx.Configuration;
+using System.Reflection;
+using MonoMod.Cil;
+using KinematicCharacterController;
 
 namespace Flood_Warning
 {
-    class BetterInteractables : BaseUnityPlugin
+    [BepInDependency("com.bepis.r2api")]
+
+    [BepInPlugin("com.PallesenProductions.BetterInteractables", "BetterInteractables", "1.0.0")]
+
+    public class BetterInteractables : BaseUnityPlugin
     {
 
-        public static bool RunBetterInteractables()
+        public void Awake()//Code that runs when the game starts
         {
             var addRule = typeof(RuleCatalog).GetMethod("AddRule", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(RuleDef) }, null);
             var addCategory = typeof(RuleCatalog).GetMethod("AddCategory", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string), typeof(Color), typeof(string), typeof(Func<bool>) }, null);
@@ -29,7 +34,7 @@ namespace Flood_Warning
                 if (myNum * 100 == 50f) { shopExistenceRule.MakeNewestChoiceDefault(); }
                 myRule.spritePath = "Textures/MiscIcons/texRuleBonusStartingMoney";
                 myRule.tooltipNameToken = "" + myNum * 100 + " Base Chance";
-                myRule.tooltipBodyToken = myNum*100 + "% Chance to replace a vanilla triple shop with a custom one (Varied costs, cost types and rewards)";
+                myRule.tooltipBodyToken = myNum * 100 + "% Chance to replace a vanilla triple shop with a custom one (Varied costs, cost types and rewards)";
                 if (i == 0f)
                 {
                     myRule.tooltipNameToken = "0% Chance";
@@ -41,13 +46,13 @@ namespace Flood_Warning
             RuleDef shopChancesRule = new RuleDef("FloodWarning.BetterShopChances", "Chance of a success on each roll of a Better Triple Shop Tier");
             for (int i = 0; i <= 20; i++)
             {
-                float myNum = (i * 5)/100f;
+                float myNum = (i * 5) / 100f;
 
-                RuleChoiceDef myRule = shopChancesRule.AddChoice("0", myNum*100f, false);
+                RuleChoiceDef myRule = shopChancesRule.AddChoice("0", myNum * 100f, false);
                 if (myNum * 100 == 50f) { shopChancesRule.MakeNewestChoiceDefault(); }
                 myRule.spritePath = "Textures/MiscIcons/texRuleBonusStartingMoney";
                 myRule.tooltipNameToken = "" + myNum * 100 + " Chance to go up a tier (each tier)";
-                myRule.tooltipBodyToken = (Math.Pow(myNum, 1) * 100).ToString("#.###") + "% reaches White, " + (Math.Pow(myNum,2)*100).ToString("#.###") + "% reaches Green, " + (Math.Pow(myNum, 3)*100).ToString("#.###") + "% reaches Red, " + (Math.Pow(myNum, 4)*100).ToString("#.###") + "% reaches Lunar, " + (Math.Pow(myNum, 5)*100).ToString("#.###") + "% reaches Boss ";
+                myRule.tooltipBodyToken = (Math.Pow(myNum, 1) * 100).ToString("#.###") + "% reaches White, " + (Math.Pow(myNum, 2) * 100).ToString("#.###") + "% reaches Green, " + (Math.Pow(myNum, 3) * 100).ToString("#.###") + "% reaches Red, " + (Math.Pow(myNum, 4) * 100).ToString("#.###") + "% reaches Lunar, " + (Math.Pow(myNum, 5) * 100).ToString("#.###") + "% reaches Boss ";
                 if (i == 0f)
                 {
                     myRule.tooltipNameToken = "0% Chance";
@@ -55,8 +60,6 @@ namespace Flood_Warning
                 }
             }
             addRule.Invoke(null, new object[] { shopChancesRule });
-
-
 
             addCategory.Invoke(null, new object[] { "Better Shrines", new Color(219 / 255, 182 / 255, 19 / 255, byte.MaxValue), "", new Func<bool>(() => false) });
 
@@ -79,12 +82,12 @@ namespace Flood_Warning
                 On.EntityStates.Duplicator.Duplicating.DropDroplet += (orig, self) =>
                 {
                     orig(self);
-                    
+
                 };
 
                 On.RoR2.ShrineChanceBehavior.Awake += (orig, self) =>
                 {
-                    if((bool)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.betterShrine")).extraData)
+                    if ((bool)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.betterShrine")).extraData)
                     {
                         Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.ShrineChanceBehavior"), "maxPurchaseCount").SetValue(self, Run.instance.treasureRng.RangeInt(2, 5));
                         Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.ShrineChanceBehavior"), "costMultiplierPerPurchase").SetValue(self, 1.2f);
@@ -112,12 +115,12 @@ namespace Flood_Warning
                     orig(self);
                 };
 
-                On.RoR2.ShrineChanceBehavior.AddShrineStack += (orig, self,activator) =>
+                On.RoR2.ShrineChanceBehavior.AddShrineStack += (orig, self, activator) =>
                 {
                     self.tier1Weight *= 1;
                     self.tier2Weight *= 1.1f;
                     self.tier3Weight *= 1.05f;
-                    orig(self,activator);
+                    orig(self, activator);
                     if ((bool)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.betterShrine")).extraData)
                     {
                         Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.ShrineChanceBehavior"), "refreshTimer").SetValue(self, 0.1f);
@@ -125,14 +128,14 @@ namespace Flood_Warning
                 };
                 On.RoR2.ShrineHealingBehavior.AddShrineStack += (orig, self, activator) =>
                 {
-                    
+
                     orig(self, activator);
                     if ((bool)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.betterShrine")).extraData)
                     {
                         Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.ShrineHealingBehavior"), "refreshTimer").SetValue(self, 0.1f);
                     }
                 };
-               
+
                 On.EntityStates.Duplicator.Duplicating.OnEnter += (orig, self) =>
                 {
                     orig(self);
@@ -150,17 +153,6 @@ namespace Flood_Warning
             CostType customCostType = CostType.WhiteItem;
             ItemTier customTier = ItemTier.NoTier;
             int customCost = 0;
-
-
-
-
-            //On.RoR2.MultiShopController.UpdateHologramContent += (orig, self, var) =>
-            //{
-            //    orig(self, var);
-            //    CostHologramContent component = var.GetComponent<CostHologramContent>();
-            //    component.costType = self.costType;
-            //    component.displayValue = self.baseCost;
-            //};
 
             On.RoR2.MultiShopController.Start += (orig, self) =>
             {
@@ -346,23 +338,23 @@ namespace Flood_Warning
                         {
                             case ItemTier.Tier1:
                                 customCostType = CostType.Money;
-                                customCost = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "baseCost").GetValue(self) * 2; 
+                                customCost = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "baseCost").GetValue(self) * 2;
                                 break;
                             case ItemTier.Tier2:
                                 customCostType = CostType.Money;
-                                customCost = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "baseCost").GetValue(self) * 3; 
+                                customCost = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "baseCost").GetValue(self) * 3;
                                 break;
                             case ItemTier.Tier3:
                                 customCostType = CostType.Money;
-                                customCost = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "baseCost").GetValue(self) * 5; 
+                                customCost = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "baseCost").GetValue(self) * 5;
                                 break;
                             case ItemTier.Lunar:
                                 customCostType = CostType.Money;
-                                customCost = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "baseCost").GetValue(self) * 5; 
+                                customCost = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "baseCost").GetValue(self) * 5;
                                 break;
                             case ItemTier.Boss:
                                 customCostType = CostType.Money;
-                                customCost = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "baseCost").GetValue(self) *4; 
+                                customCost = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "baseCost").GetValue(self) * 4;
                                 break;
                         }
                         isCustomCost = false;
@@ -435,7 +427,7 @@ namespace Flood_Warning
                         gameObject.GetComponent<PurchaseInteraction>().cost = customCost;
                         gameObject.GetComponent<PurchaseInteraction>().costType = customCostType;
                     }
-                    Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "terminalGameObjects").SetValue(self,terminalGameObjects);
+                    Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.MultiShopController"), "terminalGameObjects").SetValue(self, terminalGameObjects);
 
                 }
                 orig(self);
@@ -450,7 +442,7 @@ namespace Flood_Warning
                     while (failed == false)
                     {
                         randomNumber = Run.instance.treasureRng.RangeInt(0, 100);
-                        if (randomNumber < (float)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.BetterShopChances")).extraData|| customTier == ItemTier.Boss)
+                        if (randomNumber < (float)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.BetterShopChances")).extraData || customTier == ItemTier.Boss)
                         {
                             failed = true;
                             break;
@@ -480,8 +472,8 @@ namespace Flood_Warning
                 }
 
             };
-
-            return true;
         }
     }
+
+    
 }

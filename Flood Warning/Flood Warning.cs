@@ -19,7 +19,7 @@ namespace Flood_Warning
 
         public void Awake()//Code that runs when the game starts
         {
-          
+
 
 
             if (BetterInteractables.RunBetterInteractables()) { Chat.AddMessage("[FW] Better Interactables Loaded"); }
@@ -45,11 +45,47 @@ namespace Flood_Warning
                 }
             }
 
+            On.RoR2.UI.RuleCategoryController.Awake += (orig, self) =>
+            {
+                self.SetCollapsed(true);
+                orig(self);
+            };
+
+            On.RoR2.UI.RuleChoiceController.OnClick += (orig, self) =>
+            {
+                RuleChoiceDef myChoiceDef = (RuleChoiceDef)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.UI.RuleChoiceController"), "currentChoiceDef").GetValue(self);
+                myChoiceDef.ruleDef.defaultChoiceIndex = myChoiceDef.localIndex;
+                orig(self);
+            };
+
+            On.RoR2.RuleDef.AddChoice += (orig, self, choiceName, extraData, excludeByDefault) =>
+            {
+
+                excludeByDefault = false;
+
+                RuleChoiceDef ruleChoiceDef = new RuleChoiceDef();
+                ruleChoiceDef.ruleDef = self;
+                ruleChoiceDef.localName = choiceName;
+                ruleChoiceDef.globalName = self.globalName + "." + choiceName;
+                ruleChoiceDef.localIndex = self.choices.Count;
+                ruleChoiceDef.extraData = extraData;
+                ruleChoiceDef.excludeByDefault = excludeByDefault;
+                self.choices.Add(ruleChoiceDef);
+                return ruleChoiceDef;
+            };
+
+            On.RoR2.RuleCatalog.HiddenTestItemsConvar += (self) =>
+            {
+                return false;
+            };
+            On.RoR2.RuleCatalog.HiddenTestTrue += (self) =>
+            {
+                return false;
+            };
+
             Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RuleCatalog"), "allRuleDefs").SetValue(null, allRuleDefs);
             Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RuleCatalog"), "allChoicesDefs").SetValue(null, allChoicesDefs);
             RuleCatalog.availability.MakeAvailable();
-
-
         }
 
         public void Update()

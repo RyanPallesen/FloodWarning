@@ -1,21 +1,25 @@
 ﻿using BepInEx;
-using KinematicCharacterController;
-using R2API.Utils;
 using RoR2;
-using RoR2.CharacterAI;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 using UnityEngine;
+using System.Collections.Generic;
+using System;
+using BepInEx.Configuration;
+using System.Reflection;
+using MonoMod.Cil;
+using KinematicCharacterController;
 using UnityEngine.Networking;
+using RoR2.CharacterAI;
 
 namespace Flood_Warning
 {
-    class AITeammates : BaseUnityPlugin
+    [BepInDependency("com.bepis.r2api")]
+
+    [BepInPlugin("com.PallesenProductions.TeammateInheritance", "TeammateInheritance", "1.0.0")]
+
+    public class SizeManager : BaseUnityPlugin
     {
-       
-        public static bool RunAITeammates()
+
+        public void Awake()
         {
 
             var addRule = typeof(RuleCatalog).GetMethod("AddRule", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(RuleDef) }, null);
@@ -25,7 +29,7 @@ namespace Flood_Warning
 
             RuleDef allySpawnType = new RuleDef("FloodWarning.allySpawnType", "Guaranteed");
 
-           
+
             RuleChoiceDef myRule = allySpawnType.AddChoice("0", 0, false);
             myRule.spritePath = "Textures/MiscIcons/texRuleBonusStartingMoney";
             myRule.tooltipNameToken = "Vanilla";
@@ -50,10 +54,10 @@ namespace Flood_Warning
 
             for (float o = 0; o <= 20; o++)
             {
-                float myNum = o/10;
+                float myNum = o / 10;
                 RuleChoiceDef myRule5 = allyItemRatio.AddChoice("0", myNum, false);
                 myRule5.spritePath = "Textures/MiscIcons/texRuleBonusStartingMoney";
-                myRule5.tooltipNameToken = "" + myNum*10 + " to 10";
+                myRule5.tooltipNameToken = "" + myNum * 10 + " to 10";
                 myRule5.tooltipBodyToken = "Allies will spawn with " + myNum + "x the items their owner has";
                 if (myNum == 0.4f) { allyItemRatio.MakeNewestChoiceDefault(); }
             }
@@ -91,7 +95,7 @@ namespace Flood_Warning
                 CharacterMaster component2 = gameObject.GetComponent<CharacterMaster>();
                 component2.teamIndex = TeamComponent.GetObjectTeam(component.gameObject);
                 Inventory component3 = gameObject.GetComponent<Inventory>();
-                giveItems(component3,master.inventory, (int)(Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.allySpawnType")).extraData));
+                giveItems(component3, master.inventory, (int)(Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.allySpawnType")).extraData));
                 NetworkServer.Spawn(gameObject);
                 component2.SpawnBody(component2.bodyPrefab, position, self.transform.rotation);
                 AIOwnership component4 = gameObject.GetComponent<AIOwnership>();
@@ -107,70 +111,67 @@ namespace Flood_Warning
                 return component2;
             };
 
-        //    On.RoR2.CharacterBody.UpdateBeetleGuardAllies += (orig, self) =>
-        //    {
-        //        if (NetworkServer.active)
-        //        {
-        //            int num = self.inventory ? self.inventory.GetItemCount(ItemIndex.BeetleGland) : 0;
-        //            if (num > 0 && self.master.GetDeployableCount(DeployableSlot.BeetleGuardAlly) < num)
-        //            {
-        //                self.SetFieldValue("guardResummonCooldown", self.GetFieldValue<float>("guardResummonCooldown") - Time.fixedDeltaTime);
+            //    On.RoR2.CharacterBody.UpdateBeetleGuardAllies += (orig, self) =>
+            //    {
+            //        if (NetworkServer.active)
+            //        {
+            //            int num = self.inventory ? self.inventory.GetItemCount(ItemIndex.BeetleGland) : 0;
+            //            if (num > 0 && self.master.GetDeployableCount(DeployableSlot.BeetleGuardAlly) < num)
+            //            {
+            //                self.SetFieldValue("guardResummonCooldown", self.GetFieldValue<float>("guardResummonCooldown") - Time.fixedDeltaTime);
 
-        //                if (self.GetFieldValue<float>("guardResummonCooldown") <= 0f)
-        //                {
-        //                    self.SetFieldValue("guardResummonCooldown", 30f);
-        //                    GameObject gameObject = DirectorCore.instance.TrySpawnObject((SpawnCard)Resources.Load("SpawnCards/CharacterSpawnCards/cscBeetleGuardAlly"), new DirectorPlacementRule
-        //                    {
-        //                        placementMode = DirectorPlacementRule.PlacementMode.Approximate,
-        //                        minDistance = 3f,
-        //                        maxDistance = 40f,
-        //                        spawnOnTarget = self.transform
-        //                    }, RoR2Application.rng);
-        //                    if (gameObject)
-        //                    {
-        //                        CharacterMaster component = gameObject.GetComponent<CharacterMaster>();
+            //                if (self.GetFieldValue<float>("guardResummonCooldown") <= 0f)
+            //                {
+            //                    self.SetFieldValue("guardResummonCooldown", 30f);
+            //                    GameObject gameObject = DirectorCore.instance.TrySpawnObject((SpawnCard)Resources.Load("SpawnCards/CharacterSpawnCards/cscBeetleGuardAlly"), new DirectorPlacementRule
+            //                    {
+            //                        placementMode = DirectorPlacementRule.PlacementMode.Approximate,
+            //                        minDistance = 3f,
+            //                        maxDistance = 40f,
+            //                        spawnOnTarget = self.transform
+            //                    }, RoR2Application.rng);
+            //                    if (gameObject)
+            //                    {
+            //                        CharacterMaster component = gameObject.GetComponent<CharacterMaster>();
 
-        //                        Inventory inventory = gameObject.GetComponent<Inventory>();
+            //                        Inventory inventory = gameObject.GetComponent<Inventory>();
 
-        //                        inventory.CopyItemsFrom(self.inventory);
-        //                        giveItems(inventory, self.inventory, (int)(Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.allySpawnType")).extraData));
+            //                        inventory.CopyItemsFrom(self.inventory);
+            //                        giveItems(inventory, self.inventory, (int)(Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.allySpawnType")).extraData));
 
-        //                        AIOwnership component2 = gameObject.GetComponent<AIOwnership>();
-        //                        BaseAI component3 = gameObject.GetComponent<BaseAI>();
-        //                        if (component)
-        //                        {
-        //                            component.teamIndex = TeamComponent.GetObjectTeam(self.gameObject);
-        //                            component.inventory.GiveItem(ItemIndex.BoostDamage, 30);
-        //                            component.inventory.GiveItem(ItemIndex.BoostHp, 10);
-        //                            GameObject bodyObject = component.GetBodyObject();
-        //                            if (bodyObject)
-        //                            {
-        //                                Deployable component4 = bodyObject.GetComponent<Deployable>();
-        //                                self.master.AddDeployable(component4, DeployableSlot.BeetleGuardAlly);
-        //                            }
-        //                        }
-        //                        if (component2)
-        //                        {
-        //                            component2.ownerMaster = self.master;
-        //                        }
-        //                        if (component3)
-        //                        {
-        //                            component3.leader.gameObject = self.gameObject;
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
+            //                        AIOwnership component2 = gameObject.GetComponent<AIOwnership>();
+            //                        BaseAI component3 = gameObject.GetComponent<BaseAI>();
+            //                        if (component)
+            //                        {
+            //                            component.teamIndex = TeamComponent.GetObjectTeam(self.gameObject);
+            //                            component.inventory.GiveItem(ItemIndex.BoostDamage, 30);
+            //                            component.inventory.GiveItem(ItemIndex.BoostHp, 10);
+            //                            GameObject bodyObject = component.GetBodyObject();
+            //                            if (bodyObject)
+            //                            {
+            //                                Deployable component4 = bodyObject.GetComponent<Deployable>();
+            //                                self.master.AddDeployable(component4, DeployableSlot.BeetleGuardAlly);
+            //                            }
+            //                        }
+            //                        if (component2)
+            //                        {
+            //                            component2.ownerMaster = self.master;
+            //                        }
+            //                        if (component3)
+            //                        {
+            //                            component3.leader.gameObject = self.gameObject;
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        }
 
-        //    };
-            return true;
+            //    };
         }
-
-
 
         public static void giveItems(Inventory summonInventory, Inventory playerInventory, int GiveRule)
         {
-            if(GiveRule ==1)
+            if (GiveRule == 1)
             {
                 float tier1Count = 0;
                 float tier2Count = 0;

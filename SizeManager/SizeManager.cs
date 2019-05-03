@@ -1,36 +1,40 @@
-﻿using KinematicCharacterController;
+﻿using BepInEx;
 using RoR2;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 using UnityEngine;
+using System.Collections.Generic;
+using System;
+using BepInEx.Configuration;
+using System.Reflection;
+using MonoMod.Cil;
+using KinematicCharacterController;
 
 namespace Flood_Warning
 {
-    class SizeManager
+    [BepInDependency("com.bepis.r2api")]
+
+    [BepInPlugin("com.PallesenProductions.SizeManager", "SizeManager", "1.0.0")]
+
+    public class SizeManager : BaseUnityPlugin
     {
 
-        public static bool RunSizeManager()
+        public void Awake()//Code that runs when the game starts
         {
             var addRule = typeof(RuleCatalog).GetMethod("AddRule", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(RuleDef) }, null);
             var addCategory = typeof(RuleCatalog).GetMethod("AddCategory", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string), typeof(Color), typeof(string), typeof(Func<bool>) }, null);
 
-
-
             var myvar = addCategory.Invoke(null, new object[] { "Entity Sizes", new Color(94 / 255, 82 / 255, 30 / 255, byte.MaxValue), "", new Func<bool>(() => false) });
-            
+
             RuleDef SpawnPlayerRule = new RuleDef("FloodWarning.PlayerSize", "Guaranteed");
             SpawnPlayerRule.defaultChoiceIndex = 8;
             for (float o = 1; o <= 50; o++)
             {
                 float myNum = o / 10;
                 RuleChoiceDef myRule = SpawnPlayerRule.AddChoice("0", myNum, false);
-                    myRule.spritePath = "Textures/MiscIcons/texRuleBonusStartingMoney";
-                    myRule.tooltipNameToken = "" + myNum + "x size for Players";
-                    myRule.tooltipBodyToken = "When a Player spawns in your world, they will be " + myNum + "x the size";
-                }
-                addRule.Invoke(null, new object[] { SpawnPlayerRule });
+                myRule.spritePath = "Textures/MiscIcons/texRuleBonusStartingMoney";
+                myRule.tooltipNameToken = "" + myNum + "x size for Players";
+                myRule.tooltipBodyToken = "When a Player spawns in your world, they will be " + myNum + "x the size";
+            }
+            addRule.Invoke(null, new object[] { SpawnPlayerRule });
             RuleDef SpawnAllyRule = new RuleDef("FloodWarning.AllySize", "Guaranteed");
             SpawnAllyRule.defaultChoiceIndex = 6;
             for (float o = 1; o <= 50; o++)
@@ -116,8 +120,8 @@ namespace Flood_Warning
                 {
                     scaleFactor *= (float)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.BossSize")).extraData;
                 }
-                
-                if(body.isElite)
+
+                if (body.isElite)
                 {
                     scaleFactor *= (float)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.EliteSize")).extraData;
 
@@ -136,7 +140,7 @@ namespace Flood_Warning
                     scaleFactor *= (float)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.NeutralSize")).extraData;
 
                 }
-                
+
                 if (body.isPlayerControlled)
                 {
                     scaleFactor *= (float)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.PlayerSize")).extraData;
@@ -144,8 +148,6 @@ namespace Flood_Warning
                 }
                 body.modelLocator.modelTransform.localScale = new Vector3(tf.x * scaleFactor, tf.y * scaleFactor, tf.z * scaleFactor);
             };
-            return true;
         }
-
     }
 }

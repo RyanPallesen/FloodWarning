@@ -7,13 +7,17 @@ using BepInEx.Configuration;
 using System.Reflection;
 using MonoMod.Cil;
 using KinematicCharacterController;
+
 namespace Flood_Warning
 {
+    [BepInDependency("com.bepis.r2api")]
 
-    public class InteractableManager : BaseUnityPlugin
+    [BepInPlugin("com.PallesenProductions.BetterInteractables", "BetterInteractables", "1.0.0")]
+
+    public class BetterInteractables : BaseUnityPlugin
     {
 
-        public static bool RunInteractableManager()
+        public void Awake()//Code that runs when the game starts
         {
             string[] interactables = { "iscBrokenDrone1", "iscBrokenDrone2", "iscBrokenMegaDrone", "iscBrokenMissileDrone", "iscBrokenTurret1", "iscBarrel1", "iscEquipmentBarrel", "iscLockbox", "iscChest1", "iscChest1Stealthed", "iscChest2", "iscGoldChest", "iscTripleShop", "iscTripleShopLarge", "iscDuplicator", "iscDuplicatorLarge", "iscDuplicatorMilitary", "iscShrineCombat", "iscShrineBoss", "iscShrineBlood", "iscShrineChance", "iscShrineHealing", "iscShrineRestack", "iscShrineGoldshoresAccess", "iscRadarTower", "iscTeleporter", "iscShopPortal", "iscMSPortal", "iscGoldshoresPortal", "iscGoldshoresBeacon" };
             string[] interactableNames = { "Gunner Drone", "Healing Drone", "Prototype Drone", "Missile Drone", "Broken Turret", "Barrel", "Equipment Barrel", "Rusty Lockbox", "Chest", "Stealthed Chest", "Large Chest", "Legendary Chest", "Triple Shop", "Triple Shop (Red and Green)", "3D Printer", "Large Printer (Green)", "Mili-tech Printer (Red)", "Shrine of Combat", "Shrine of the Mountain", "Shrine of Blood", "Shrine of Chance", "Shrine of the Forest", "Shrine of Order", "Gold Shrine", "Radar", "Teleporter", "Blue Portal", "Celestial Portal", "Gold Portal", "Halycon Beacon" };
@@ -511,36 +515,35 @@ namespace Flood_Warning
                     }
                 }
 
-                return orig(self,categorySelection);
+                return orig(self, categorySelection);
             };
 
             On.RoR2.SceneDirector.PlaceTeleporter += (orig, self) =>
-        {
-
-            int currentCredits = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.SceneDirector"), "interactableCredit").GetValue(self);
-            Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.SceneDirector"), "interactableCredit").SetValue(self, (int)(currentCredits * (float)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.InteractableScale")).extraData));
-
-            orig(self);
-
-            Xoroshiro128Plus rng = new Xoroshiro128Plus((ulong)Run.instance.stageRng.nextUint); ;
-            DirectorCore myDirector = (DirectorCore)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.SceneDirector"), "directorCore").GetValue(self);
-            for (int i = 0; i < interactables.Length; i++)
             {
-                for (int o = 0; o < (float)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning." + interactables[i] + "Guaranteed")).extraData; o++)
-                {
-                    GameObject myGameObject = myDirector.TrySpawnObject(Resources.Load<SpawnCard>((string)("SpawnCards/InteractableSpawnCard/" + interactables[i])), new DirectorPlacementRule
-                    {
-                        placementMode = DirectorPlacementRule.PlacementMode.Random
-                    }, rng);
 
-                    if (myGameObject.GetComponent<PurchaseInteraction>())
+                int currentCredits = (int)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.SceneDirector"), "interactableCredit").GetValue(self);
+                Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.SceneDirector"), "interactableCredit").SetValue(self, (int)(currentCredits * (float)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning.InteractableScale")).extraData));
+
+                orig(self);
+
+                Xoroshiro128Plus rng = new Xoroshiro128Plus((ulong)Run.instance.stageRng.nextUint); ;
+                DirectorCore myDirector = (DirectorCore)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.SceneDirector"), "directorCore").GetValue(self);
+                for (int i = 0; i < interactables.Length; i++)
+                {
+                    for (int o = 0; o < (float)Run.instance.ruleBook.GetRuleChoice(RuleCatalog.FindRuleDef("FloodWarning." + interactables[i] + "Guaranteed")).extraData; o++)
                     {
-                        myGameObject.GetComponent<PurchaseInteraction>().cost = Run.instance.GetDifficultyScaledCost(myGameObject.GetComponent<PurchaseInteraction>().cost);
+                        GameObject myGameObject = myDirector.TrySpawnObject(Resources.Load<SpawnCard>((string)("SpawnCards/InteractableSpawnCard/" + interactables[i])), new DirectorPlacementRule
+                        {
+                            placementMode = DirectorPlacementRule.PlacementMode.Random
+                        }, rng);
+
+                        if (myGameObject.GetComponent<PurchaseInteraction>())
+                        {
+                            myGameObject.GetComponent<PurchaseInteraction>().cost = Run.instance.GetDifficultyScaledCost(myGameObject.GetComponent<PurchaseInteraction>().cost);
+                        }
                     }
                 }
-            }
-        };
-        return true;
+            };
         }
     }
 }
