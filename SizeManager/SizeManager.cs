@@ -12,7 +12,7 @@ namespace Flood_Warning
 {
     [BepInDependency("com.bepis.r2api")]
 
-    [BepInPlugin("com.PallesenProductions.SizeManager", "SizeManager", "1.0.0")]
+    [BepInPlugin("com.PallesenProductions.SizeManager", "SizeManager", "1.1.0")]
 
     public class SizeManager : BaseUnityPlugin
     {
@@ -23,6 +23,8 @@ namespace Flood_Warning
             var addCategory = typeof(RuleCatalog).GetMethod("AddCategory", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string), typeof(Color), typeof(string), typeof(Func<bool>) }, null);
 
             var myvar = addCategory.Invoke(null, new object[] { "Entity Sizes", new Color(94 / 255, 82 / 255, 30 / 255, byte.MaxValue), "", new Func<bool>(() => false) });
+
+
 
             RuleDef SpawnPlayerRule = new RuleDef("FloodWarning.PlayerSize", "Guaranteed");
             SpawnPlayerRule.defaultChoiceIndex = 8;
@@ -105,6 +107,33 @@ namespace Flood_Warning
                 myRule.tooltipBodyToken = "Whenever ANY enemy spawns in your world, they will be " + myNum + "x the size";
             }
             addRule.Invoke(null, new object[] { SpawnMonsterRule });
+
+            List<RuleDef> allRuleDefs = (List<RuleDef>)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RuleCatalog"), "allRuleDefs").GetValue(null);
+            List<RuleChoiceDef> allChoicesDefs = (List<RuleChoiceDef>)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RuleCatalog"), "allChoicesDefs").GetValue(null);
+
+            for (int k = 0; k < allRuleDefs.Count; k++)
+            {
+                RuleDef ruleDef = allRuleDefs[k];
+                ruleDef.globalIndex = k;
+                for (int j = 0; j < ruleDef.choices.Count; j++)
+                {
+                    RuleChoiceDef ruleChoiceDef6 = ruleDef.choices[j];
+                    ruleChoiceDef6.localIndex = j;
+                    ruleChoiceDef6.globalIndex = allChoicesDefs.Count;
+                    allChoicesDefs.Add(ruleChoiceDef6);
+                }
+            }
+
+            On.RoR2.UI.RuleChoiceController.OnClick += (orig, self) =>
+            {
+                RuleChoiceDef myChoiceDef = (RuleChoiceDef)Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RoR2.UI.RuleChoiceController"), "currentChoiceDef").GetValue(self);
+                myChoiceDef.ruleDef.defaultChoiceIndex = myChoiceDef.localIndex;
+                orig(self);
+            };
+
+            Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RuleCatalog"), "allRuleDefs").SetValue(null, allRuleDefs);
+            Harmony.AccessTools.Field(Harmony.AccessTools.TypeByName("RuleCatalog"), "allChoicesDefs").SetValue(null, allChoicesDefs);
+            RuleCatalog.availability.MakeAvailable();
 
             On.RoR2.CharacterMaster.OnBodyStart += (orig, self, body) =>
             {
