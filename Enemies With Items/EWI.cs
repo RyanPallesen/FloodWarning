@@ -32,6 +32,8 @@ None
     {
 
 
+
+
         public void Awake()
         {
             R2API.ConfigController.addConfigCategory("Enemy Item Type Editor", new Color(0, 0, 0));
@@ -44,7 +46,7 @@ None
             R2API.ConfigController.insertRuleChoice<itemRule>(itemRule.RatioOneToOne, "DifficultyScaled", "Tier-based (1:1)", "For each item you have of a specific tier, the enemy will have 1", new Color(0, 0, 0), new Color(0, 0, 0));
             R2API.ConfigController.insertRuleChoice<itemRule>(itemRule.RatioHalf, "DifficultyScaled", "Tier-based (1:2)", "For every 2 items you have of a specific tier, the enemy will have 1", new Color(0, 0, 0), new Color(0, 0, 0));
             R2API.ConfigController.insertRuleChoice<itemRule>(itemRule.RatioThird, "DifficultyScaled", "Tier-based (1:3)", "For every 3 items you have of a specific tier, the enemy will have 1", new Color(0, 0, 0), new Color(0, 0, 0));
-            R2API.ConfigController.insertRuleChoice<itemRule>(itemRule.RatioFourth, "DifficultyScaled", "Tier-based (1:4)", "For every 2 items you have of a specific tier, the enemy will have 1", new Color(0, 0, 0), new Color(0, 0, 0));
+            R2API.ConfigController.insertRuleChoice<itemRule>(itemRule.RatioFourth, "DifficultyScaled", "Tier-based (1:4)", "For every 4 items you have of a specific tier, the enemy will have 1", new Color(0, 0, 0), new Color(0, 0, 0));
             R2API.ConfigController.insertRuleChoice<itemRule>(itemRule.LooseCopy, "DifficultyScaled", "Loose Copy", "Enemies have a copy of a random player's items, Minus equipment", new Color(0, 0, 0), new Color(0, 0, 0));
             R2API.ConfigController.insertRuleChoice<itemRule>(itemRule.ExactCopy, "DifficultyScaled", "Exact Copy", "Enemies have an exact copy of a random player's items", new Color(0, 0, 0), new Color(0, 0, 0));
             R2API.ConfigController.insertRuleChoice<itemRule>(itemRule.None, "DifficultyScaled", "None", "Enemies will not have items", new Color(0, 0, 0), new Color(0, 0, 0));
@@ -203,18 +205,6 @@ None
                     yield return new WaitForSeconds(0.01f);
                 }
             }
-           
-            summon.inventory.ResetItem(ItemIndex.TreasureCache);
-            summon.inventory.ResetItem(ItemIndex.Feather);
-            summon.inventory.ResetItem(ItemIndex.Firework);
-            summon.inventory.ResetItem(ItemIndex.Talisman);
-            summon.inventory.ResetItem(ItemIndex.SprintArmor);
-            summon.inventory.ResetItem(ItemIndex.JumpBoost);
-            summon.inventory.ResetItem(ItemIndex.GoldOnHit);
-            summon.inventory.ResetItem(ItemIndex.WardOnLevel);
-            summon.inventory.ResetItem(ItemIndex.BeetleGland);
-            summon.inventory.ResetItem(ItemIndex.CrippleWardOnLevel);
-            summon.inventory.ResetItem(ItemIndex.ExtraLife);
         }
     }
 }
